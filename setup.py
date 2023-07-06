@@ -2,13 +2,13 @@ from setuptools import setup
 
 setup(
     name='pymorningstar', 
-    version='0.10', 
+    version='0.21',
     description = "Automating the download of information from Morningstar's Excel Add-In API",
     author = 'Pablo Vilas',
     author_email='pablo.vilas.naval@gmail.com',
     packages = ['pymorningstar'],
-    install_requires=['xlwings','pandas','pyautogui', 'opencv-python'],
-    url='https://github.com/VilasPablo/2021-Morningstar-Excel',
+    install_requires=['xlwings','pandas','pyautogui', 'opencv-python', 'Pillow'],
+    url='https://github.com/VilasPablo/pymorningstar',
     classifiers=[ 
         'Intended Audience :: Science/Research',
         'Intended Audience :: Financial and Insurance Industry',

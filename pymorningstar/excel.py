@@ -31,7 +31,7 @@ class ExcelMorning():
         self.wb.app.api.WindowState = xw.constants.WindowState.xlMaximized
         self.wb.app.activate(steal_focus=True)
         time.sleep(5)
-        self.sheet = self.wb.sheets['Hoja1']
+        self.sheet = self.wb.sheets[0]
          
              
     def get_holding (self, isin_fund, inception_date, obsolete_date, asset_id, holding_type='ALL',data_type = 'WEIGHT', 
@@ -106,7 +106,7 @@ class ExcelMorning():
         
         df = self.get_data(formula, variables_name, wait_time)# introduce formula and get the data
         
-        self.hold_info.at[serie_code,:] = [len(df.index), len(df.columns), df.isnull().sum().sum(), 
+        self.attr_info.loc[serie_code,:] = [len(df.index), len(df.columns), df.isnull().sum().sum(), 
                                 df.size, datetime.datetime.now(), "'"+formula.replace('""','"')]
         # Clean & prepare attributes data
         df['serie_code'] = serie_code
