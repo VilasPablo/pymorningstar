@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pymorningstar', 
-    version='0.21',
+    version='0.23',
     description = "Automating the download of information from Morningstar's Excel Add-In API",
     author = 'Pablo Vilas',
     author_email='pablo.vilas.naval@gmail.com',

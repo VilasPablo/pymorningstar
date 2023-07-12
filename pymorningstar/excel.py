@@ -13,7 +13,7 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 
 class ExcelMorning():
     
-    def __init__(self):
+    def __init__(self, is_american_format=False):
         
         # Store Info about the Attributes Download
         self.attr_info = pd.DataFrame(columns =['Index Len', 'Col Len', 'NaN', 'Size','Time','Formula'])
@@ -22,7 +22,7 @@ class ExcelMorning():
         self.hold_info= pd.DataFrame(columns =['SerieCode', 'StarDown', 'EndDown', 'StarDate','EndDate',
                                 'IndexLen', 'ColLen', 'NaN', 'Size','Time','Formula']).set_index(  
                                 ['SerieCode', 'StarDown', 'EndDown'])
-        
+        self.is_american_format = is_american_format
         self.initialize_morning()
     
     def initialize_morning(self):
@@ -63,8 +63,8 @@ class ExcelMorning():
             end_date = start_date + relativedelta(months=months_frac) - timedelta(days=1)
             if end_date > obsolete_date:
                 end_date = obsolete_date.replace(day=1) + relativedelta(months=1) - timedelta(days=1)            
-            start_date = start_date.strftime("%d/%m/%Y")
-            end_date = end_date.strftime("%d/%m/%Y")
+            start_date = start_date.strftime("%m/%d/%Y") if self.is_american_format else start_date.strftime("%d/%m/%Y")
+            end_date = end_date.strftime("%m/%d/%Y") if self.is_american_format else end_date.strftime("%d/%m/%Y")
             # Create the formula
             formula = ",".join(['"'+word+ '"' for word in [isin_fund, asset_id, start_date, end_date] ]) 
             formula = '=MSHOLDING(' + formula + formula_1 +'")' 
@@ -72,10 +72,10 @@ class ExcelMorning():
             # introduce formula and get the data
             df = self.get_data(formula, wait_time=wait_time)
             # Info about the download of holding
-            start_date = datetime.datetime.strptime(start_date,"%d/%m/%Y").date()
-            end_date = datetime.datetime.strptime(end_date,"%d/%m/%Y").date()  
-        
-            
+            start_date = datetime.datetime.strptime(start_date,"%m/%d/%Y").date() if self.is_american_format else datetime.datetime.strptime(start_date,"%d/%m/%Y").date()
+            end_date = datetime.datetime.strptime(end_date,"%m/%d/%Y").date()  if self.is_american_format else datetime.datetime.strptime(end_date,"%d/%m/%Y").date()
+
+
             self.hold_info.loc[(isin_fund, start_date, end_date),:] = [inception_date, obsolete_date,
                                 len(df.index),len(df.columns),df.isnull().sum().sum(), df.size, datetime.datetime.now(), "'"+formula.replace('""','"')]  
             # adjust date for the next loop
@@ -100,8 +100,11 @@ class ExcelMorning():
                             # frequency == monthly(M) -- quarterly(Q) -- semiannually (S) -- yearly (Y)
                             # days == trading/activity days(T) -- calendar days(C)!! -- weekdays (W)
                             # fill == Last available data (C) -- previous day's data(P) --  Zero (T)
-        formula = '=MSTS("' + serie_code + '",' + ',"&'.join('"'+x for x in variables_name)+'","' +date(
-        *star_date).strftime("%d/%m/%Y") + '","' + date(*end_date).strftime("%d/%m/%Y") + '",'+ (
+
+        star_date = date(*star_date).strftime("%m/%d/%Y") if self.is_american_format else date(*star_date).strftime("%d/%m/%Y")
+        end_date = date(*end_date).strftime("%m/%d/%Y") if self.is_american_format else date(*end_date).strftime("%d/%m/%Y")
+
+        formula = '=MSTS("' + serie_code + '",' + ',"&'.join('"'+x for x in variables_name)+'","' + star_date + '","' + end_date + '",'+ (
         '"CORR=C, DATES=True, ASCENDING=TRUE, FILL=B, HEADERS=TRUE, FREQ=%s, DAYS=%s")' % (frequency, days))
         
         df = self.get_data(formula, variables_name, wait_time)# introduce formula and get the data
